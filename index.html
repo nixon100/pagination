@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagination</title>
+  <style>
+    .pagination li {
+    margin: 0 5px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+  }
+  .pagination {
+    display: flex;
+    list-style-type: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .pagination li.active {
+    background-color: #ccc;
+  }
+  table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+<div id="data"></div>
+<h1>Users</h1>
+<div>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody id="data-container"></tbody>
+  </table>
+</div>
+
+<ul id="pagination" class="pagination"></ul>
+
+<script>
+  src="https://app.zenclass.in/sheets/v1/js/zen/suite/bundle.js"
+  fetch('Data.json')
+    .then(response => response.json())
+    .then(data => {
+      const itemsPerPage = 10;
+      const totalPages = Math.ceil(data.length / itemsPerPage);
+
+      function displayItems(pageNumber, itemsPerPage) {
+        const startIndex = (pageNumber - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedItems = data.slice(startIndex, endIndex);
+
+        const container = document.querySelector('#data-container');
+        container.innerHTML = '';
+
+        paginatedItems.forEach(user => {
+          const row = document.createElement('tr');
+          const idCell = document.createElement('td');
+          const nameCell = document.createElement('td');
+          const emailCell = document.createElement('td');
+
+          idCell.textContent = user.id;
+          nameCell.textContent = user.name;
+          emailCell.textContent = user.email;
+
+          row.appendChild(idCell);
+          row.appendChild(nameCell);
+          row.appendChild(emailCell);
+
+          container.appendChild(row);
+        });
+      }
+
+      function generatePagination(totalPages, currentPage) {
+        const paginationContainer = document.getElementById('pagination');
+        paginationContainer.innerHTML = '';
+
+        for (let i = 1; i <= totalPages; i++) {
+          const listItem = document.createElement('li');
+          listItem.textContent = i;
+
+          if (i === currentPage) {
+            listItem.classList.add('active');
+          }
+
+          listItem.addEventListener('click', () => {
+            displayItems(i, itemsPerPage);
+            highlightCurrentPage(i);
+          });
+
+          paginationContainer.appendChild(listItem);
+        }
+      }
+
+      function highlightCurrentPage(pageNumber) {
+        const paginationItems = document.querySelectorAll('.pagination li');
+        paginationItems.forEach(item => {
+          item.classList.remove('active');
+          if (parseInt(item.textContent) === pageNumber) {
+            item.classList.add('active');
+          }
+        });
+      }
+
+      displayItems(1, itemsPerPage);
+      generatePagination(totalPages, 1);
+    });
+</script>
+
+</body>
+</html>
